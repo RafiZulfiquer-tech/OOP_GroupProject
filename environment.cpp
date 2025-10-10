@@ -1,5 +1,7 @@
 #include "Environment.h"
+#include "Entity.h"  // ← ADD THIS
 #include <algorithm>
+#include <cmath>
 
 Environment::Environment(int width, int height) : width(width), height(height) {}
 
@@ -18,12 +20,19 @@ void Environment::removeEntity(Entity* entity) {
 }
 
 bool Environment::checkCollision(Entity* a, Entity* b) const {
-    // Placeholder: Assume Entity has x, y, radius
     if (!a || !b) return false;
-    int dx = a->getX() - b->getX();
-    int dy = a->getY() - b->getY();
-    int distSq = dx * dx + dy * dy;
-    int radSum = a->getRadius() + b->getRadius();
+    
+    // Get positions using getPosition() which returns sf::Vector2f
+    sf::Vector2f posA = a->getPosition();
+    sf::Vector2f posB = b->getPosition();
+    
+    // Calculate distance
+    float dx = posA.x - posB.x;  // ← Use .x not getX()
+    float dy = posA.y - posB.y;  // ← Use .y not getY()
+    float distSq = dx * dx + dy * dy;
+    
+    // Check if circles overlap
+    float radSum = a->getRadius() + b->getRadius();
     return distSq <= radSum * radSum;
 }
 
