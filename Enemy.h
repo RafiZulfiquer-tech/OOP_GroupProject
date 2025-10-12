@@ -1,25 +1,27 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
+#include <SFML/Graphics.hpp>
 #include "Entity.h"
 
 class Enemy : public Entity {
-private:
+protected:
     float speed;
     int damage;
     float attackCooldown;
     float currentCooldown;
-
+    int xpReward;
 public:
-    Enemy(float x, float y, int hp, float spd, int dmg);
+    Enemy(float x, float y, int hp, float spd, int dmg, int xp);
+    virtual ~Enemy() = default;
 
-    void moveToward(sf::Vector2f target, float dt);
-    bool canAttack() const;
-    int getDamage() const;
-    void resetCooldown();
-
-    void update(float dt) override;
-    void draw(sf::RenderWindow& window) override;
+    virtual void moveToward(sf::Vector2f target, float dt);
+    virtual bool canAttack() const;
+    virtual int getDamage() const;
+    virtual void resetCooldown();
+    virtual void update(float dt) override;
+    virtual void draw(sf::RenderWindow& window) override;
+    int getXPReward() const { return xpReward; }
 };
 
-#endif
+#endif // ENEMY_H
