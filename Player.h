@@ -2,36 +2,46 @@
 #define PLAYER_H
 
 #include <string>
-
+#include <memory>
+#include <SFML/Graphics.hpp>
 #include "Entity.h"
 
+class Attack;
+
 class Player : public Entity {
- private:
-  float speed;
-  int xp;
-  int level;
-  int kills;
-  float attackCooldown;
-  float currentCooldown;
-  std::string className;
+protected:
+    float speed;
+    int xp;
+    int level;
+    int kills;
+    float attackCooldown;
+    float currentCooldown;
+    std::string className;
+    bool evolved;
+public:
+    Player(float x, float y, const std::string& cls = "Warrior");
+    virtual ~Player() = default;
 
- public:
-  Player(float x, float y);
+    virtual void move(sf::Vector2f direction, float dt);
+    virtual bool canAttack() const;
+    virtual std::unique_ptr<Attack> createAttack(float angleToMouse);
+    void resetCooldown();
+    void addXP(int amount);
+    void addKill();
+    virtual void evolve();
 
-  void move(sf::Vector2f direction, float dt);
-  bool canAttack() const;
-  void attack();
-  void addXP(int amount);
-  void addKill();
+    int getLevel() const;
+    int getXP() const;
+    int getKills() const;
+    std::string getClassName() const;
+    float getSpeed() const;
+    bool isEvolved() const;
+    float getCooldown() const;
+    int getXPNeeded() const;
 
-  int getLevel() const;
-  int getXP() const;
-  int getKills() const;
-  std::string getClassName() const;
-
-  void update(float dt) override;
-  void draw(sf::RenderWindow& window) override;
+    // void functions to change with different characters classes
+    void update(float dt) override;
+    void draw(sf::RenderWindow& window) override;
 };
 
-#endif
-
+#endif // PLAYER_

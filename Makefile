@@ -1,19 +1,30 @@
 CXX = g++
-CXXFLAGS = -Wall -Werror -std=c++11
+CXXFLAGS = -Wall -std=c++14
+SFML_FLAGS = -lsfml-graphics -lsfml-window -lsfml-system
 
-all: test_environment
+# List all object files (excluding test files)
+OBJS = Entity.o Enemy.o Goblin.o GoblinBrute.o GoblinLord.o \
+       Player.o Warrior.o Wizard.o Rogue.o \
+       Knight.o Archmage.o Assassin.o \
+       Controller.o Menu.o environment.o \
+       main.o
 
-test_environment: Environment.o Entity.o test_environment.o
-	$(CXX) $(CXXFLAGS) -o test_environment Environment.o Entity.o test_environment.o
+# Main target
+all: game
 
-Environment.o: Environment.cpp Environment.h
-	$(CXX) $(CXXFLAGS) -c Environment.cpp
+game: $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o game $(SFML_FLAGS)
 
-Entity.o: Entity.h
-	$(CXX) $(CXXFLAGS) -c -o Entity.o Entity.cpp
+# Compile each .cpp to .o
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-test_environment.o: test_environment.cpp Environment.h Entity.h
-	$(CXX) $(CXXFLAGS) -c test_environment.cpp
-
+# Clean up
 clean:
-	rm -f *.o test_environment
+	rm -f *.o game
+
+# Run the game
+run: game
+	./game
+
+.PHONY: all clean run
