@@ -8,7 +8,7 @@ private:
     int armor;
     int baseArmor;
 public:
-    GoblinBrute(float x, float y);
+    GoblinBrute(float x, float y, float hp = 120, float speed = 60.f, float damage = 20);
     void takeDamage(int dmg) override;
     void draw(sf::RenderWindow& window) override;
 };

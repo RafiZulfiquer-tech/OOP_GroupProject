@@ -14,6 +14,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include "WaveManager.h"
+#include "HUD.h"
 
 int main() {
     srand(static_cast<unsigned>(time(0)));
@@ -21,20 +23,21 @@ int main() {
     window.setFramerateLimit(60);
 
     Environment environment(1280, 720);
+    WaveManager waveManager(&environment);
     Controller controller;
     Menu menu;
-    
-    if (!menu.loadFont("arial.ttf")) {
+
+    sf::Font font;
+    if (!font.loadFromFile("arial.ttf")) {
         std::cout << "Warning: Could not load arial.ttf. Text will not display." << std::endl;
     }
 
     Player* player = nullptr;
-    std::vector<Enemy*> enemies;
     std::vector<std::unique_ptr<Attack>> attacks;
     MenuState gameState = MenuState::MAIN_MENU;
     sf::Clock clock;
-    float spawnTimer = 0.f;
-    float spawnInterval = 3.f;
+    HUD hud(font);
+    menu.setFont(font);
 
     std::cout << "Game started! Use mouse to navigate menus." << std::endl;
 
@@ -51,7 +54,7 @@ int main() {
                 if (event.type == sf::Event::MouseButtonPressed) {
                     sf::Vector2f mousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
                     int selection = menu.handleClick(mousePos);
-                    
+
                     if (gameState == MenuState::MAIN_MENU) {
                         if (selection == 0) { // Start Game
                             menu.setState(MenuState::CLASS_SELECT);
@@ -65,7 +68,7 @@ int main() {
                             if (selection == 0) player = new Warrior(640, 360);
                             else if (selection == 1) player = new Wizard(640, 360);
                             else if (selection == 2) player = new Rogue(640, 360);
-                            
+
                             gameState = MenuState::PLAYING;
                             std::cout << "Game started with " << player->getClassName() << std::endl;
                         }
@@ -73,7 +76,7 @@ int main() {
                 }
             } else if (gameState == MenuState::PLAYING) {
                 controller.handleEvent(event);
-                
+
                 // ESC to pause
                 if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
                     gameState = MenuState::PAUSED;
@@ -86,10 +89,15 @@ int main() {
                         delete player;
                         player = nullptr;
                     }
-                    for (auto enemy : enemies) delete enemy;
-                    enemies.clear();
+                    // Delete all entities in environment
+                    for (size_t i = 0; i < environment.getEntityCount(); ++i) {
+                        delete environment.getEntity(i);
+                    }
+                    // Clear the entities vector
+                    environment.clearEntities();
+
                     attacks.clear();
-                    
+
                     // Return to main menu
                     menu.setState(MenuState::MAIN_MENU);
                     gameState = MenuState::MAIN_MENU;
@@ -106,14 +114,14 @@ int main() {
         // Game logic
         if (gameState == MenuState::PLAYING && player) {
             controller.update(window);
-            
+
             // Player movement
             sf::Vector2f moveVec = controller.getMoveVector();
             player->move(moveVec, deltaTime);
-            
+
             // Player attack
             if (controller.isAttackPressed()) {
-                std::cout << "Click detected! Can attack: " << player->canAttack() 
+                std::cout << "Click detected! Can attack: " << player->canAttack()
                           << " Cooldown: " << player->getCooldown() << std::endl;
                 if (player->canAttack()) {
                     float angleToMouse = controller.getMouseAngle(player->getPosition());
@@ -121,32 +129,31 @@ int main() {
                     if (attack) {
                         attacks.push_back(std::move(attack));
                         player->resetCooldown();
-                        std::cout << "Attack created! Angle: " << angleToMouse 
+                        std::cout << "Attack created! Angle: " << angleToMouse
                                   << " Total attacks: " << attacks.size() << std::endl;
                     } else {
                         std::cout << "Attack creation failed (probably out of mana)" << std::endl;
                     }
                 }
             }
-            
+
             // Update player
             player->update(deltaTime);
-            
-            // Spawn enemies
-            spawnTimer += deltaTime;
-            if (spawnTimer >= spawnInterval) {
-                float x = rand() % 1280;
-                float y = rand() % 720;
-                enemies.push_back(new Goblin(x, y));
-                spawnTimer = 0.f;
-            }
-            
-            // Update enemies
-            for (auto enemy : enemies) {
-                if (enemy->isAlive()) {
+
+            // Update waveManager
+            waveManager.update(deltaTime);
+
+            // Update HUD
+            hud.update(waveManager.getCurrentWave(), player->getHealth(), player->getMaxHealth());
+
+            // Update and move all enemies/entities
+            for (size_t i = 0; i < environment.getEntityCount(); ++i) {
+                Entity* entity = environment.getEntity(i);
+                Enemy* enemy = dynamic_cast<Enemy*>(entity);
+                if (enemy && enemy->isAlive()) {
                     enemy->moveToward(player->getPosition(), deltaTime);
                     enemy->update(deltaTime);
-                    
+
                     // Check enemy attack on player
                     float dist = std::sqrt(
                         std::pow(enemy->getPosition().x - player->getPosition().x, 2) +
@@ -162,14 +169,15 @@ int main() {
                     }
                 }
             }
-            
+
             // Update attacks
             for (auto& attack : attacks) {
                 attack->update(deltaTime);
-                
+
                 // Check attack collision with enemies
-                for (auto enemy : enemies) {
-                    if (enemy->isAlive() && attack->isActive()) {
+                for (size_t i = 0; i < environment.getEntityCount(); ++i) {
+                    Enemy* enemy = dynamic_cast<Enemy*>(environment.getEntity(i));
+                    if (enemy && enemy->isAlive() && attack->isActive()) {
                         // Check if this enemy was already hit by this attack
                         if (!attack->hasHit(enemy) && attack->checkCollision(enemy->getPosition(), enemy->getRadius())) {
                             enemy->takeDamage(attack->getDamage());
@@ -183,58 +191,49 @@ int main() {
                     }
                 }
             }
-            
+
             // Remove inactive attacks
             attacks.erase(
                 std::remove_if(attacks.begin(), attacks.end(),
                     [](const std::unique_ptr<Attack>& a) { return !a->isActive(); }),
                 attacks.end()
             );
-            
-            // Remove dead enemies
-            enemies.erase(
-                std::remove_if(enemies.begin(), enemies.end(),
-                    [](Enemy* e) {
-                        if (!e->isAlive()) {
-                            delete e;
-                            return true;
-                        }
-                        return false;
-                    }),
-                enemies.end()
-            );
+
+            // Remove dead entities from environment
+            environment.removeDeadEntities();
         }
 
         // Rendering
         window.clear(sf::Color(30, 30, 40));
-        
+
         if (gameState == MenuState::MAIN_MENU || gameState == MenuState::CLASS_SELECT) {
             menu.draw(window);
         } else if (gameState == MenuState::PLAYING && player) {
             // Draw player
             player->draw(window);
-            
-            // Draw enemies
-            for (auto enemy : enemies) {
-                enemy->draw(window);
+
+            // Draw enemies/entities
+            for (size_t i = 0; i < environment.getEntityCount(); ++i) {
+                Enemy* enemy = dynamic_cast<Enemy*>(environment.getEntity(i));
+                if (enemy && enemy->isAlive()) {
+                    enemy->draw(window);
+                }
             }
-            
+
             // Draw attacks
             for (auto& attack : attacks) {
                 attack->draw(window);
             }
-            
-            // Draw HUD (simple text)
-            if (menu.loadFont("arial.ttf")) {
-                // You could add HUD elements here
-            }
+
+            // Draw HUD
+            hud.draw(window);
         } else if (gameState == MenuState::GAME_OVER) {
             // Simple game over screen
             sf::Text gameOverText;
             sf::Font font;
             if (font.loadFromFile("arial.ttf")) {
                 gameOverText.setFont(font);
-                gameOverText.setString("GAME OVER\n\nKills: " + std::to_string(player ? player->getKills() : 0) + 
+                gameOverText.setString("GAME OVER\n\nKills: " + std::to_string(player ? player->getKills() : 0) +
                                       "\n\nPress ESC to return to menu");
                 gameOverText.setCharacterSize(48);
                 gameOverText.setFillColor(sf::Color::Red);
@@ -244,13 +243,17 @@ int main() {
                 window.draw(gameOverText);
             }
         }
-        
+
         window.display();
     }
 
     // Cleanup
     if (player) delete player;
-    for (auto enemy : enemies) delete enemy;
-    
+    // Delete all remaining entities
+    for (size_t i = 0; i < environment.getEntityCount(); ++i) {
+        delete environment.getEntity(i);
+    }
+    environment.clearEntities();
+
     return 0;
 }

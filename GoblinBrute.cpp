@@ -2,8 +2,8 @@
 #include <algorithm>
 #include <stdexcept>
 
-GoblinBrute::GoblinBrute(float x, float y)
-    : Enemy(x, y, 120, 60.f, 20, 25), armor(10), baseArmor(10) {
+GoblinBrute::GoblinBrute(float x, float y, float hp, float speed, float damage)
+    : Enemy(x, y, hp, speed, damage, 25), armor(10), baseArmor(10) {
     radius = 18.f;
 }
 
@@ -17,6 +17,16 @@ void GoblinBrute::takeDamage(int dmg) {
 void GoblinBrute::draw(sf::RenderWindow& window) {
     sf::CircleShape shape(radius);
     shape.setPosition(position.x - radius, position.y - radius);
-    shape.setFillColor(sf::Color(180, 50, 50));
+    shape.setFillColor(sf::Color(180, 50, 50)); // Brute red
+
+    shape.setOutlineThickness(5.f);
+    shape.setOutlineColor(sf::Color::Black);
+
     window.draw(shape);
+
+    // Draw armour
+    sf::CircleShape armorShape(radius * 0.6f);
+    armorShape.setPosition(position.x - radius * 0.6f, position.y - radius * 0.6f);
+    armorShape.setFillColor(sf::Color(120, 120, 120, 180));
+    window.draw(armorShape);
 }

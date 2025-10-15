@@ -7,6 +7,8 @@ OBJS = Entity.o Enemy.o Goblin.o GoblinBrute.o GoblinLord.o \
        Player.o Warrior.o Wizard.o Rogue.o \
        Knight.o Archmage.o Assassin.o \
        Controller.o Menu.o environment.o \
+	   WaveManager.o \
+	   HUD.o \
        main.o
 
 # Main target

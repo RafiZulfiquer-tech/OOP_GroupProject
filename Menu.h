@@ -38,6 +38,8 @@ class Menu {
     //state management
     MenuState getCurrentState() const { return currentState; }
     void setState(MenuState state);
+    
+    void setFont(const sf::Font& font);
 
     void handleMouseMove(sf::Vector2f mousePos);
     int handleClick(sf::Vector2f mousePos);

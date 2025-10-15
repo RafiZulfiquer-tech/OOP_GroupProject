@@ -161,3 +161,9 @@ void Menu::draw(sf::RenderWindow& window) {
         }
     }
 }
+
+void Menu::setFont(const sf::Font& fontRef) {
+    font = fontRef;
+    setupMainMenu();
+    setupClassSelect();
+}

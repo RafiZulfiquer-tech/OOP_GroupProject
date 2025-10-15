@@ -17,6 +17,9 @@ public:
     int getWidth() const;
     int getHeight() const;
     size_t getEntityCount() const;
+    Entity* getEntity(size_t index) const { return entities.at(index); }
+    void clearEntities();
+    void removeDeadEntities();
 
 private:
     int width, height;

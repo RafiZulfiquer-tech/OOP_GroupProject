@@ -4,8 +4,8 @@
 #include <cmath>
 #include <cstdlib>
 
-GoblinLord::GoblinLord(float x, float y)
-    : Enemy(x, y, 300, 50.f, 30, 100),
+GoblinLord::GoblinLord(float x, float y, float hp, float speed, float damage)
+    : Enemy(x, y, hp, speed, damage, 100),
       armor(20), summonCooldown(10), summonTimer(0.f),
       maxSummons(5), currentSummons(0) {
     radius = 25.f;
@@ -56,9 +56,24 @@ void GoblinLord::notifyGoblinDeath() {
 void GoblinLord::draw(sf::RenderWindow& window) {
     sf::CircleShape shape(radius);
     shape.setPosition(position.x - radius, position.y - radius);
-    shape.setFillColor(sf::Color(100, 0, 100));
+    shape.setFillColor(sf::Color(100, 0, 100)); // Purple for Lord
+
+    // Gold outline
+    shape.setOutlineThickness(6.f);
+    shape.setOutlineColor(sf::Color(255, 215, 0)); // Gold
+
     window.draw(shape);
+
+    // Draw crown
+    sf::ConvexShape crown;
+    crown.setPointCount(3);
+    crown.setPoint(0, sf::Vector2f(position.x, position.y - radius - 8));
+    crown.setPoint(1, sf::Vector2f(position.x - 10, position.y - radius + 5));
+    crown.setPoint(2, sf::Vector2f(position.x + 10, position.y - radius + 5));
+    crown.setFillColor(sf::Color(255, 215, 0));
+    window.draw(crown);
 }
+
 
 void GoblinLord::onDeath() {
     for (auto goblin : summonedGoblins) {

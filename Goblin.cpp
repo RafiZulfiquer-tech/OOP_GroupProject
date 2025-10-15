@@ -1,7 +1,7 @@
 #include "Goblin.h"
 
-Goblin::Goblin(float x, float y)
-    : Enemy(x, y, 50, 80.f, 10, 10) {
+Goblin::Goblin(float x, float y, float hp, float speed, float damage)
+    : Enemy(x, y, hp, speed, damage, 10) { // 10 is attack cooldown
     radius = 12.f;
 }
 

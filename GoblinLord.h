@@ -15,7 +15,7 @@ private:
     int currentSummons;
     std::vector<Goblin*> summonedGoblins;
 public:
-    GoblinLord(float x, float y);
+    GoblinLord(float x, float y, float hp = 300, float speed = 50.f, float damage = 30);
     ~GoblinLord();
     void takeDamage(int dmg) override;
     void update(float dt) override;

@@ -43,6 +43,26 @@ void Environment::clampPosition(int& x, int& y) const {
     if (y > height) y = height;
 }
 
+void Environment::clearEntities() {
+    for (auto entity : entities) {
+        delete entity;
+    }
+    entities.clear();
+}
+void Environment::removeDeadEntities() {
+    entities.erase(
+        std::remove_if(entities.begin(), entities.end(),
+            [](Entity* e) {
+                if (!e->isAlive()) {
+                    delete e;
+                    return true;
+                }
+                return false;
+            }),
+        entities.end()
+    );
+}
+
 int Environment::getWidth() const { return width; }
 int Environment::getHeight() const { return height; }
 size_t Environment::getEntityCount() const { return entities.size(); }
