@@ -1,0 +1,141 @@
+# Makefile for Game Engine Tests
+
+# Compiler settings
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall -Wextra -Wno-unused-parameter -I.
+LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+
+# Directories
+TEST_DIR = tests
+BUILD_DIR = tests/build
+
+# Engine source files (all in root directory)
+ENGINE_SRCS = Entity.cpp \
+              environment.cpp \
+              Player.cpp \
+              Warrior.cpp \
+              Wizard.cpp \
+              Rogue.cpp \
+              Knight.cpp \
+              Assassin.cpp \
+              Archmage.cpp \
+              Enemy.cpp \
+              Goblin.cpp \
+              GoblinBrute.cpp \
+              GoblinLord.cpp \
+              Controller.cpp
+
+# Test executables
+TESTS = test_entity_creation \
+        test_entity_damage \
+        test_brute_armor \
+        test_brute_negative_damage \
+        test_lord_summon \
+        test_lord_max_summons \
+        test_lord_death \
+        test_env_collision \
+        test_env_spawn_null \
+        test_env_remove_dead \
+        test_player_movement \
+        test_player_xp \
+        test_wizard_mana \
+        test_rogue_crit \
+        test_enemy_movement \
+        test_enemy_attack_cooldown \
+        test_integration_combat
+
+# Build directory
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+# Build all tests
+all: $(BUILD_DIR) $(TESTS)
+
+# Individual test rules
+test_entity_creation: $(TEST_DIR)/test_entity_creation.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_entity_damage: $(TEST_DIR)/test_entity_damage.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_brute_armor: $(TEST_DIR)/test_brute_armor.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_brute_negative_damage: $(TEST_DIR)/test_brute_negative_damage.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_lord_summon: $(TEST_DIR)/test_lord_summon.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_lord_max_summons: $(TEST_DIR)/test_lord_max_summons.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_lord_death: $(TEST_DIR)/test_lord_death.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_env_collision: $(TEST_DIR)/test_env_collision.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_env_spawn_null: $(TEST_DIR)/test_env_spawn_null.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_env_remove_dead: $(TEST_DIR)/test_env_remove_dead.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_player_movement: $(TEST_DIR)/test_player_movement.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_player_xp: $(TEST_DIR)/test_player_xp.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_wizard_mana: $(TEST_DIR)/test_wizard_mana.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_rogue_crit: $(TEST_DIR)/test_rogue_crit.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_enemy_movement: $(TEST_DIR)/test_enemy_movement.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_enemy_attack_cooldown: $(TEST_DIR)/test_enemy_attack_cooldown.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+test_integration_combat: $(TEST_DIR)/test_integration_combat.cpp $(ENGINE_SRCS)
+	$(CXX) $(CXXFLAGS) -o $(BUILD_DIR)/$@ $^ $(LDFLAGS)
+
+# Run all tests
+test: all
+	@echo "=========================================="
+	@echo "Running All Tests"
+	@echo "=========================================="
+	@for test in $(TESTS); do \
+		echo "\n--- Running $$test ---"; \
+		./$(BUILD_DIR)/$$test || exit 1; \
+	done
+	@echo "\n=========================================="
+	@echo "All Tests Passed!"
+	@echo "=========================================="
+
+# Run individual test
+run-%: $(BUILD_DIR)/%
+	@echo "Running $*..."
+	@./$(BUILD_DIR)/$*
+
+# Clean build files
+clean:
+	rm -rf $(BUILD_DIR)
+
+# Help
+help:
+	@echo "Available targets:"
+	@echo "  make -f Makefile.tests all          - Build all tests"
+	@echo "  make -f Makefile.tests test         - Build and run all tests"
+	@echo "  make -f Makefile.tests run-<test>   - Run specific test"
+	@echo "  make -f Makefile.tests clean        - Remove build files"
+	@echo ""
+	@echo "Available tests:"
+	@for test in $(TESTS); do \
+		echo "  - $$test"; \
+	done
+
+.PHONY: all test clean help

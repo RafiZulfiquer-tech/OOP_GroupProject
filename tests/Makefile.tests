@@ -1,0 +1,92 @@
+CXX = g++
+CXXFLAGS = -std=c++17 -I.. -I. -g
+SFML_LIBS = -lsfml-graphics -lsfml-window -lsfml-system
+GTEST_LIBS = -lgtest -lgtest_main -pthread
+
+# Source files from main project
+MAIN_SRCS = ../Entity.cpp ../Player.cpp ../Warrior.cpp ../Wizard.cpp ../Rogue.cpp \
+            ../Archmage.cpp ../Knight.cpp ../Assassin.cpp ../Enemy.cpp ../Goblin.cpp \
+            ../GoblinBrute.cpp ../GoblinLord.cpp ../Environment.cpp ../Controller.cpp \
+            ../Menu.cpp ../WaveManager.cpp ../HUD.cpp
+
+# Test directories
+INTEGRATION_DIR = integration
+UNIT_DIR = unit+exceptionHandling
+
+# Find all test files
+INTEGRATION_TESTS = $(wildcard $(INTEGRATION_DIR)/*.cpp)
+UNIT_TESTS = $(wildcard $(UNIT_DIR)/*.cpp)
+
+# Output directories
+TEST_BUILD_DIR = test_build
+INTEGRATION_BUILD_DIR = $(TEST_BUILD_DIR)/integration
+UNIT_BUILD_DIR = $(TEST_BUILD_DIR)/unit
+
+# Create build directories
+$(shell mkdir -p $(INTEGRATION_BUILD_DIR) $(UNIT_BUILD_DIR))
+
+# Test targets
+INTEGRATION_TARGETS = $(patsubst $(INTEGRATION_DIR)/%.cpp,$(INTEGRATION_BUILD_DIR)/%,$(INTEGRATION_TESTS))
+UNIT_TARGETS = $(patsubst $(UNIT_DIR)/%.cpp,$(UNIT_BUILD_DIR)/%,$(UNIT_TESTS))
+
+# Default target
+all: integration unit
+
+# Integration tests
+integration: $(INTEGRATION_TARGETS)
+	@echo "=== Running Integration Tests ==="
+	@for test in $(INTEGRATION_TARGETS); do \
+		echo "Running $$test..."; \
+		$$test || echo "TEST FAILED: $$test"; \
+		echo ""; \
+	done
+
+# Unit tests
+unit: $(UNIT_TARGETS)
+	@echo "=== Running Unit Tests ==="
+	@for test in $(UNIT_TARGETS); do \
+		echo "Running $$test..."; \
+		$$test || echo "TEST FAILED: $$test"; \
+		echo ""; \
+	done
+
+# Build integration tests - show full command for debugging
+$(INTEGRATION_BUILD_DIR)/%: $(INTEGRATION_DIR)/%.cpp $(MAIN_SRCS)
+	@echo "Building $<..."
+	$(CXX) $(CXXFLAGS) $< $(MAIN_SRCS) $(SFML_LIBS) $(GTEST_LIBS) -o $@
+
+# Build unit tests - show full command for debugging
+$(UNIT_BUILD_DIR)/%: $(UNIT_DIR)/%.cpp $(MAIN_SRCS)
+	@echo "Building $<..."
+	$(CXX) $(CXXFLAGS) $< $(MAIN_SRCS) $(SFML_LIBS) $(GTEST_LIBS) -o $@
+
+# Run specific integration test
+run-integration-%: $(INTEGRATION_BUILD_DIR)/%
+	@echo "Running $<..."
+	@$<
+
+# Run specific unit test
+run-unit-%: $(UNIT_BUILD_DIR)/%
+	@echo "Running $<..."
+	@$<
+
+# Clean test builds
+clean:
+	rm -rf $(TEST_BUILD_DIR)
+
+# List available tests
+list-tests:
+	@echo "=== Integration Tests ==="
+	@for test in $(INTEGRATION_TESTS); do \
+		basename=$$(basename $$test .cpp); \
+		echo "  integration-$$basename"; \
+	done
+	@echo ""
+	@echo "=== Unit Tests ==="
+	@for test in $(UNIT_TESTS); do \
+		basename=$$(basename $$test .cpp); \
+		echo "  unit-$$basename"; \
+	done
+
+.PHONY: all integration unit clean list-tests
+EOF
