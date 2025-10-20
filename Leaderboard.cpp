@@ -2,6 +2,8 @@
 #include <fstream>
 #include <algorithm>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 // Constructor - creates leaderboard and loads existing scores
 Leaderboard::Leaderboard(const std::string& file) : filename(file) {
@@ -107,14 +109,59 @@ void Leaderboard::draw(sf::RenderWindow& window, sf::Font& font) {
     title.setPosition(640, 80);  // Center at top
     window.draw(title);
     
+    // Column positions (X coordinates)
+    float rankX = 120;
+    float nameX = 220;
+    float classX = 400;
+    float waveX = 580;
+    float killsX = 720;
+    float levelX = 880;
+    
     // Draw column headers
-    sf::Text headers;
-    headers.setFont(font);
-    headers.setString("Rank    Name         Class      Wave    Kills    Level");
-    headers.setCharacterSize(24);
-    headers.setFillColor(sf::Color(200, 200, 200));
-    headers.setPosition(100, 150);
-    window.draw(headers);
+    sf::Text rankHeader, nameHeader, classHeader, waveHeader, killsHeader, levelHeader;
+    
+    rankHeader.setFont(font);
+    rankHeader.setString("Rank");
+    rankHeader.setCharacterSize(24);
+    rankHeader.setFillColor(sf::Color(200, 200, 200));
+    rankHeader.setPosition(rankX, 150);
+    
+    nameHeader.setFont(font);
+    nameHeader.setString("Name");
+    nameHeader.setCharacterSize(24);
+    nameHeader.setFillColor(sf::Color(200, 200, 200));
+    nameHeader.setPosition(nameX, 150);
+    
+    classHeader.setFont(font);
+    classHeader.setString("Class");
+    classHeader.setCharacterSize(24);
+    classHeader.setFillColor(sf::Color(200, 200, 200));
+    classHeader.setPosition(classX, 150);
+    
+    waveHeader.setFont(font);
+    waveHeader.setString("Wave");
+    waveHeader.setCharacterSize(24);
+    waveHeader.setFillColor(sf::Color(200, 200, 200));
+    waveHeader.setPosition(waveX, 150);
+    
+    killsHeader.setFont(font);
+    killsHeader.setString("Kills");
+    killsHeader.setCharacterSize(24);
+    killsHeader.setFillColor(sf::Color(200, 200, 200));
+    killsHeader.setPosition(killsX, 150);
+    
+    levelHeader.setFont(font);
+    levelHeader.setString("Level");
+    levelHeader.setCharacterSize(24);
+    levelHeader.setFillColor(sf::Color(200, 200, 200));
+    levelHeader.setPosition(levelX, 150);
+    
+    window.draw(rankHeader);
+    window.draw(nameHeader);
+    window.draw(classHeader);
+    window.draw(waveHeader);
+    window.draw(killsHeader);
+    window.draw(levelHeader);
     
     // Draw each score
     float startY = 200;      // Y position of first score
@@ -122,39 +169,70 @@ void Leaderboard::draw(sf::RenderWindow& window, sf::Font& font) {
     
     // Loop through top 10 scores
     for (size_t i = 0; i < scores.size() && i < MAX_SCORES; ++i) {
-        sf::Text scoreText;
-        scoreText.setFont(font);
+        float yPos = startY + i * spacing;
         
-        // Rank number (1, 2, 3, etc)
-        std::string rankStr = std::to_string(i + 1);
-        if (i < 9) rankStr = " " + rankStr;  // Add space for single digits
+        // Color for this rank
+        sf::Color textColor;
+        if (i == 0) textColor = sf::Color(255, 215, 0);        // 1st = Gold
+        else if (i == 1) textColor = sf::Color(192, 192, 192); // 2nd = Silver
+        else if (i == 2) textColor = sf::Color(205, 127, 50);  // 3rd = Bronze
+        else textColor = sf::Color::White;                      // Rest = White
         
-        // Player name (limit to 10 characters)
-        std::string nameStr = scores[i].playerName;
-        if (nameStr.length() > 10) nameStr = nameStr.substr(0, 10);
-        while (nameStr.length() < 10) nameStr += " ";  // Pad with spaces
+        // Rank
+        sf::Text rankText;
+        rankText.setFont(font);
+        rankText.setString(std::to_string(i + 1) + ".");
+        rankText.setCharacterSize(22);
+        rankText.setFillColor(textColor);
+        rankText.setPosition(rankX, yPos);
+        window.draw(rankText);
         
-        // Class name
-        std::string classStr = scores[i].className;
-        while (classStr.length() < 10) classStr += " ";  // Pad with spaces
+        // Name (truncate to 10 chars)
+        sf::Text nameText;
+        nameText.setFont(font);
+        std::string displayName = scores[i].playerName;
+        if (displayName.length() > 10) displayName = displayName.substr(0, 10);
+        nameText.setString(displayName);
+        nameText.setCharacterSize(22);
+        nameText.setFillColor(textColor);
+        nameText.setPosition(nameX, yPos);
+        window.draw(nameText);
         
-        // Build the full line of text
-        std::string line = rankStr + ".    " + nameStr + "   " + classStr + "   " +
-                          std::to_string(scores[i].wave) + "       " +
-                          std::to_string(scores[i].kills) + "        " +
-                          std::to_string(scores[i].level);
+        // Class
+        sf::Text classText;
+        classText.setFont(font);
+        classText.setString(scores[i].className);
+        classText.setCharacterSize(22);
+        classText.setFillColor(textColor);
+        classText.setPosition(classX, yPos);
+        window.draw(classText);
         
-        scoreText.setString(line);
-        scoreText.setCharacterSize(22);
+        // Wave
+        sf::Text waveText;
+        waveText.setFont(font);
+        waveText.setString(std::to_string(scores[i].wave));
+        waveText.setCharacterSize(22);
+        waveText.setFillColor(textColor);
+        waveText.setPosition(waveX, yPos);
+        window.draw(waveText);
         
-        // Color top 3 differently
-        if (i == 0) scoreText.setFillColor(sf::Color(255, 215, 0));      // 1st = Gold
-        else if (i == 1) scoreText.setFillColor(sf::Color(192, 192, 192)); // 2nd = Silver
-        else if (i == 2) scoreText.setFillColor(sf::Color(205, 127, 50));  // 3rd = Bronze
-        else scoreText.setFillColor(sf::Color::White);                      // Rest = White
+        // Kills
+        sf::Text killsText;
+        killsText.setFont(font);
+        killsText.setString(std::to_string(scores[i].kills));
+        killsText.setCharacterSize(22);
+        killsText.setFillColor(textColor);
+        killsText.setPosition(killsX, yPos);
+        window.draw(killsText);
         
-        scoreText.setPosition(100, startY + i * spacing);
-        window.draw(scoreText);
+        // Level
+        sf::Text levelText;
+        levelText.setFont(font);
+        levelText.setString(std::to_string(scores[i].level));
+        levelText.setCharacterSize(22);
+        levelText.setFillColor(textColor);
+        levelText.setPosition(levelX, yPos);
+        window.draw(levelText);
     }
     
     // Draw instructions at bottom

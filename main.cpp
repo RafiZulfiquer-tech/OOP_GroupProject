@@ -194,15 +194,8 @@ int main() {
                     }
                     
                     std::cout << "Cleaning up entities..." << std::endl;
-                    // Don't iterate and delete at same time - collect pointers first
-                    std::vector<Entity*> entitiesToDelete;
-                    for (size_t i = 0; i < environment.getEntityCount(); ++i) {
-                        entitiesToDelete.push_back(environment.getEntity(i));
-                    }
-                    environment.clearEntities(); // Clear the vector first
-                    for (auto* entity : entitiesToDelete) {
-                        delete entity; // Then delete the entities
-                    }
+                    // clearEntities() deletes everything for us
+                    environment.clearEntities();
                     
                     std::cout << "Cleaning up attacks..." << std::endl;
                     attacks.clear();
@@ -210,6 +203,7 @@ int main() {
                     std::cout << "Cleanup complete! Returning to menu..." << std::endl;
                     menu.setState(MenuState::MAIN_MENU);
                     gameState = MenuState::MAIN_MENU;
+                    std::cout << "State changed to MAIN_MENU" << std::endl;
                 }
             } else if (gameState == MenuState::LEADERBOARD) {
                 // ESC to return to main menu from leaderboard
@@ -323,8 +317,10 @@ int main() {
                 attacks.end()
             );
 
-            // Remove dead entities
-            environment.removeDeadEntities();
+            // Remove dead entities (only if still playing)
+            if (gameState == MenuState::PLAYING && player && player->isAlive()) {
+                environment.removeDeadEntities();
+            }
         }
 
         // Rendering

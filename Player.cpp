@@ -1,5 +1,6 @@
 #include "Player.h"
 #include "Attack.h"
+#include <iostream>
 
 Player::Player(float x, float y, const std::string& cls)
     : Entity(x, y, 15.f, 100), speed(100.f), xp(0), level(1), kills(0),
@@ -18,7 +19,30 @@ std::unique_ptr<Attack> Player::createAttack(float angleToMouse) {
 }
 
 void Player::resetCooldown() { currentCooldown = attackCooldown; }
-void Player::addXP(int amount) { xp += amount; }
+
+void Player::addXP(int amount) { 
+    xp += amount; 
+    
+    // Check for level up
+    while (xp >= getXPNeeded()) {
+        xp -= getXPNeeded();
+        level++;
+        
+        // Increase stats on level up
+        maxHealth += 10;
+        health = maxHealth; // Heal to full on level up
+        speed += 2.f;
+        
+        std::cout << "LEVEL UP! Now level " << level << std::endl;
+        
+        // Check for evolution at level 10
+        if (level == 10 && !evolved) {
+            evolve();
+            std::cout << className << " evolved!" << std::endl;
+        }
+    }
+}
+
 void Player::addKill() { kills += 1; }
 void Player::evolve() { evolved = true; }
 int Player::getLevel() const { return level; }
