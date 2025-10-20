@@ -41,6 +41,12 @@ int main() {
     menu.setFont(font);
     Leaderboard leaderboard("leaderboard.txt");
 
+    // Store final stats for game over screen
+    int finalWave = 0;
+    int finalKills = 0;
+    int finalLevel = 0;
+    std::string finalClassName = "";
+
     std::cout << "Game started! Use mouse to navigate menus." << std::endl;
 
     while (window.isOpen()) {
@@ -136,30 +142,33 @@ int main() {
                     std::cout << "Restarting game..." << std::endl;
                     
                     // Save score to leaderboard if it's a top score
-                    if (player && leaderboard.isTopScore(waveManager.getCurrentWave())) {
+                    if (leaderboard.isTopScore(finalWave)) {
                         std::cout << "Enter your name (no spaces): ";
                         std::string playerName;
                         std::cin >> playerName;
-                        leaderboard.addScore(playerName, player->getClassName(), 
-                                           waveManager.getCurrentWave(), 
-                                           player->getKills(), 
-                                           player->getLevel());
+                        std::cout << "Saving score..." << std::endl;
+                        leaderboard.addScore(playerName, finalClassName, 
+                                           finalWave, finalKills, finalLevel);
+                        std::cout << "Score saved!" << std::endl;
                     }
                     
-                    // Clean up AFTER saving score
+                    // NOW clean up
+                    std::cout << "Cleaning up player..." << std::endl;
                     if (player) {
                         delete player;
                         player = nullptr;
                     }
-                    for (size_t i = 0; i < environment.getEntityCount(); ++i) {
-                        delete environment.getEntity(i);
-                    }
+                    
+                    std::cout << "Cleaning up entities..." << std::endl;
+                    // clearEntities() deletes everything for us
                     environment.clearEntities();
+                    
+                    std::cout << "Cleaning up attacks..." << std::endl;
                     attacks.clear();
                     
+                    std::cout << "Cleanup complete! Starting new game..." << std::endl;
                     menu.setState(MenuState::CLASS_SELECT);
                     gameState = MenuState::CLASS_SELECT;
-                    break;  // Break out of event loop
                 }
                 // ESC or Q to return to main menu
                 else if (event.type == sf::Event::KeyPressed && 
@@ -167,30 +176,40 @@ int main() {
                     std::cout << "Returning to main menu..." << std::endl;
                     
                     // Save score to leaderboard if it's a top score
-                    if (player && leaderboard.isTopScore(waveManager.getCurrentWave())) {
+                    if (leaderboard.isTopScore(finalWave)) {
                         std::cout << "Enter your name (no spaces): ";
                         std::string playerName;
                         std::cin >> playerName;
-                        leaderboard.addScore(playerName, player->getClassName(), 
-                                           waveManager.getCurrentWave(), 
-                                           player->getKills(), 
-                                           player->getLevel());
+                        std::cout << "Saving score..." << std::endl;
+                        leaderboard.addScore(playerName, finalClassName, 
+                                           finalWave, finalKills, finalLevel);
+                        std::cout << "Score saved!" << std::endl;
                     }
-                    
-                    // Clean up AFTER saving score
+
+                    // NOW clean up
+                    std::cout << "Cleaning up player..." << std::endl;
                     if (player) {
                         delete player;
                         player = nullptr;
                     }
+                    
+                    std::cout << "Cleaning up entities..." << std::endl;
+                    // Don't iterate and delete at same time - collect pointers first
+                    std::vector<Entity*> entitiesToDelete;
                     for (size_t i = 0; i < environment.getEntityCount(); ++i) {
-                        delete environment.getEntity(i);
+                        entitiesToDelete.push_back(environment.getEntity(i));
                     }
-                    environment.clearEntities();
+                    environment.clearEntities(); // Clear the vector first
+                    for (auto* entity : entitiesToDelete) {
+                        delete entity; // Then delete the entities
+                    }
+                    
+                    std::cout << "Cleaning up attacks..." << std::endl;
                     attacks.clear();
-
+                    
+                    std::cout << "Cleanup complete! Returning to menu..." << std::endl;
                     menu.setState(MenuState::MAIN_MENU);
                     gameState = MenuState::MAIN_MENU;
-                    break;  // Break out of event loop
                 }
             } else if (gameState == MenuState::LEADERBOARD) {
                 // ESC to return to main menu from leaderboard
@@ -260,9 +279,17 @@ int main() {
                         player->takeDamage(enemy->getDamage());
                         enemy->resetCooldown();
                         if (!player->isAlive()) {
+                            // Store final stats BEFORE any cleanup
+                            finalWave = waveManager.getCurrentWave();
+                            finalKills = player->getKills();
+                            finalLevel = player->getLevel();
+                            finalClassName = player->getClassName();
+                            
+                            std::cout << "Game Over! Wave: " << finalWave 
+                                     << " Kills: " << finalKills << std::endl;
+                            
                             gameState = MenuState::GAME_OVER;
-                            std::cout << "Game Over! Wave: " << waveManager.getCurrentWave() 
-                                     << " Kills: " << player->getKills() << std::endl;
+                            // DON'T delete anything yet - wait until they press a button
                         }
                     }
                 }
@@ -376,20 +403,18 @@ int main() {
             gameOverText.setPosition(640, 250);
             window.draw(gameOverText);
             
-            // Only draw stats if player still exists
-            if (player) {
-                sf::Text statsText;
-                statsText.setFont(font);
-                statsText.setString("Wave: " + std::to_string(waveManager.getCurrentWave()) + "\n" +
-                                   "Kills: " + std::to_string(player->getKills()) + "\n" +
-                                   "Level: " + std::to_string(player->getLevel()));
-                statsText.setCharacterSize(40);
-                statsText.setFillColor(sf::Color::White);
-                sf::FloatRect statsBounds = statsText.getLocalBounds();
-                statsText.setOrigin(statsBounds.width / 2, statsBounds.height / 2);
-                statsText.setPosition(640, 380);
-                window.draw(statsText);
-            }
+            // Use stored final stats instead of player pointer
+            sf::Text statsText;
+            statsText.setFont(font);
+            statsText.setString("Wave: " + std::to_string(finalWave) + "\n" +
+                               "Kills: " + std::to_string(finalKills) + "\n" +
+                               "Level: " + std::to_string(finalLevel));
+            statsText.setCharacterSize(40);
+            statsText.setFillColor(sf::Color::White);
+            sf::FloatRect statsBounds = statsText.getLocalBounds();
+            statsText.setOrigin(statsBounds.width / 2, statsBounds.height / 2);
+            statsText.setPosition(640, 380);
+            window.draw(statsText);
             
             sf::Text instructions;
             instructions.setFont(font);
