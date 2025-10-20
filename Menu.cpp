@@ -27,8 +27,8 @@ void Menu::setupMainMenu() {
     titleText.setOrigin(titleBounds.width / 2, titleBounds.height / 2);
     titleText.setPosition(640, 150);
     
-    // Menu options
-    std::vector<std::string> options = {"Start Game", "Settings", "Leaderboard", "Quit"};
+    // Menu options (NO SETTINGS)
+    std::vector<std::string> options = {"Start Game", "Leaderboard", "Quit"};
     float startY = 350;
     float spacing = 80;
     
@@ -122,7 +122,7 @@ int Menu::handleClick(sf::Vector2f mousePos) {
     if (currentState == MenuState::MAIN_MENU) {
         for (size_t i = 0; i < mainMenuItems.size(); i++) {
             if (isMouseOver(mainMenuItems[i], mousePos)) {
-                return static_cast<int>(i);  // 0=Start, 1=Settings, 2=Leaderboard, 3=Quit
+                return static_cast<int>(i);  // 0=Start, 1=Leaderboard, 2=Quit
             }
         }
     } else if (currentState == MenuState::CLASS_SELECT) {

@@ -1,4 +1,4 @@
-#include "environment.h"
+#include "Environment.h"
 #include "Entity.h"  // ← ADD THIS
 #include <algorithm>
 #include <cmath>

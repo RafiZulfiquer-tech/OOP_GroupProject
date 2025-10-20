@@ -9,7 +9,7 @@ Wizard::Wizard(float x, float y)
 
 std::unique_ptr<Attack> Wizard::createAttack(float angleToMouse) {
     if (hasMana(10)) {
-        consumeMana(10);
+        consumeMana(0);
         
         float angleRad = angleToMouse * 3.14159f / 180.f;
         float boltSpeed = 500.f;

@@ -6,9 +6,10 @@ SFML_FLAGS = -lsfml-graphics -lsfml-window -lsfml-system
 OBJS = Entity.o Enemy.o Goblin.o GoblinBrute.o GoblinLord.o \
        Player.o Warrior.o Wizard.o Rogue.o \
        Knight.o Archmage.o Assassin.o \
-       Controller.o Menu.o environment.o \
-	   WaveManager.o \
-	   HUD.o \
+       Controller.o Menu.o Environment.o \
+       WaveManager.o \
+       HUD.o \
+       Leaderboard.o \
        main.o
 
 # Main target
@@ -23,7 +24,7 @@ game: $(OBJS)
 
 # Clean up
 clean:
-	rm -f *.o game
+	rm -f *.o game leaderboard.txt
 
 # Run the game
 run: game
