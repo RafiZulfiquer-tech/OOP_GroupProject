@@ -1,5 +1,5 @@
 #include <SFML/Graphics.hpp>
-#include "environment.h"
+#include "Environment.h"
 #include "Player.h"
 #include "Warrior.h"
 #include "Wizard.h"

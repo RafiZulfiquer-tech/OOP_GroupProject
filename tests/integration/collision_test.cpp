@@ -1,4 +1,4 @@
-#include "../../environment.h"
+#include "../../Environment.h"
 #include "../../Warrior.h"
 #include "../../Goblin.h"
 #include <iostream>

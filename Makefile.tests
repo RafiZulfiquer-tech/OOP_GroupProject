@@ -11,7 +11,7 @@ BUILD_DIR = tests/build
 
 # Engine source files (all in root directory)
 ENGINE_SRCS = Entity.cpp \
-              environment.cpp \
+              Environment.cpp \
               Player.cpp \
               Warrior.cpp \
               Wizard.cpp \

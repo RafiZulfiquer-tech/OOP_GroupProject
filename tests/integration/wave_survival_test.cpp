@@ -1,6 +1,6 @@
 #include "../../Warrior.h"
 #include "../../Goblin.h"
-#include "../../environment.h"
+#include "../../Environment.h"
 #include <iostream>
 
 int main() {

@@ -10,7 +10,7 @@ mkdir -p tests/build
 cat > tests/integration/combat_test.cpp << 'END'
 #include "../../Warrior.h"
 #include "../../Goblin.h"
-#include "../../environment.h"
+#include "../../Environment.h"
 #include <iostream>
 
 int main() {
@@ -140,8 +140,8 @@ int main() {
 END
 
 # Create Test 5: Environment
-cat > tests/integration/environment_test.cpp << 'END'
-#include "../../environment.h"
+cat > tests/integration/Environment_test.cpp << 'END'
+#include "../../Environment.h"
 #include "../../Enemy.h"
 #include "../../Warrior.h"
 #include <iostream>
@@ -191,7 +191,7 @@ for test in "${tests[@]}"; do
     
     g++ -std=c++17 -Wno-unused-parameter -I. \
         tests/integration/${test}.cpp \
-        Entity.cpp environment.cpp Player.cpp Warrior.cpp Wizard.cpp Rogue.cpp \
+        Entity.cpp Environment.cpp Player.cpp Warrior.cpp Wizard.cpp Rogue.cpp \
         Knight.cpp Assassin.cpp Archmage.cpp Enemy.cpp Goblin.cpp GoblinBrute.cpp \
         GoblinLord.cpp Controller.cpp \
         -lsfml-graphics -lsfml-window -lsfml-system \

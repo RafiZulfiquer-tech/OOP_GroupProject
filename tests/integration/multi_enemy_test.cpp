@@ -1,7 +1,7 @@
 #include "../../Warrior.h"
 #include "../../Goblin.h"
 #include "../../GoblinBrute.h"
-#include "../../environment.h"
+#include "../../Environment.h"
 #include <iostream>
 
 int main() {

@@ -1,4 +1,4 @@
-#include "environment.h"
+#include "Environment.h"
 #include "Enemy.h"
 #include <cassert>
 #include <iostream>

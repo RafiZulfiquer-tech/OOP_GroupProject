@@ -1,7 +1,7 @@
 #ifndef WAVEMANAGER_H
 #define WAVEMANAGER_H
 
-#include "environment.h"
+#include "Environment.h"
 #include "Goblin.h"
 #include "GoblinBrute.h"
 #include "GoblinLord.h"
