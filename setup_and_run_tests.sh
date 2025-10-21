@@ -18,7 +18,7 @@ int main() {
     
     Environment env(800, 600);
     Warrior* player = new Warrior(100.f, 100.f);
-    Goblin* enemy = new Goblin(150.f, 100.f);
+    Goblin* enemy = new Goblin(100.f, 100.f);
     
     env.spawnEntity(player);
     env.spawnEntity(enemy);
