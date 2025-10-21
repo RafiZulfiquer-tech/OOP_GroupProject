@@ -3,28 +3,31 @@
 
 #include <SFML/Graphics.hpp>
 
-// initiate class
+// Handles player input: movement, mouse, and attack
 class Controller {
-    private: 
-    bool attackPressed;
-    sf::Vector2f mousePosition;
+private:
+    bool attackPressed;         // Tracks if attack button was pressed
+    sf::Vector2f mousePosition; // Current mouse position in world coords
 
-    public:
+public:
     Controller();
 
+    // Update mouse position each frame
+    void update(sf::RenderWindow &window);
 
-    //update input state
-    void update(sf::RenderWindow &window);  
+    // Process input events (e.g., mouse clicks)
     void handleEvent(const sf::Event &event);
 
-    //movement (WASD)
+    // Get normalized movement vector from WASD keys
     sf::Vector2f getMoveVector() const;
 
-    //Attack
+    // Check if attack was pressed, reset after reading
     bool isAttackPressed();
 
-    //mouse
-    sf::Vector2f getMousePosition() const {return mousePosition;}
+    // Get current mouse position in world coordinates
+    sf::Vector2f getMousePosition() const { return mousePosition; }
+
+    // Calculate angle (degrees) from given point to mouse
     float getMouseAngle(sf::Vector2f fromPosition) const;
 };
 

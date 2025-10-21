@@ -5,75 +5,78 @@
 #include <iomanip>
 #include <sstream>
 
-// Constructor - creates leaderboard and loads existing scores
+// Constructor - creates leaderboard and loads existing scores from file
 Leaderboard::Leaderboard(const std::string& file) : filename(file) {
-    loadScores();  // Load scores from file when created
+    loadScores();  // Load scores from file when object is created
 }
 
-// Add a new score to the leaderboard
+// Add a new score entry to the leaderboard
 void Leaderboard::addScore(const std::string& playerName, const std::string& className,
                            int wave, int kills, int level) {
-    // Add the new score to the list
+    // Add the new score to the scores vector
     scores.push_back(Score(playerName, className, wave, kills, level));
     
-    // Sort so best scores are first
+    // Sort the scores so the best scores appear first
     sortScores();
     
-    // Keep only top 10 scores - FIXED
+    // Keep only the top MAX_SCORES (e.g. 10)
     if (scores.size() > MAX_SCORES) {
         scores.erase(scores.begin() + MAX_SCORES, scores.end());
     }
     
-    // Save to file
+    // Save the updated scores list back to the file
     saveScores();
 }
 
-// Sort scores - highest wave first, then most kills
+// Sort scores primarily by wave (descending), then kills (descending)
 void Leaderboard::sortScores() {
     std::sort(scores.begin(), scores.end(), 
         [](const Score& a, const Score& b) {
-            // If waves are different, higher wave wins
+            // If waves differ, higher wave wins
             if (a.wave != b.wave) return a.wave > b.wave;
-            // If waves are same, more kills wins
+            // If waves are the same, higher kills wins
             return a.kills > b.kills;
         });
 }
 
-// Load scores from file
+// Load scores from the file into the scores vector
 void Leaderboard::loadScores() {
-    std::ifstream file(filename);  // Open file for reading
+    std::ifstream file(filename);  // Open the file for reading
     
-    // If file doesn't exist, that's okay - we'll create it later
+    // If file doesn't exist yet, print info and return
     if (!file.is_open()) {
         std::cout << "No leaderboard file found. Creating new one." << std::endl;
         return;
     }
     
-    scores.clear();  // Clear old scores
+    scores.clear();  // Clear any existing scores
     
-    // Read each score from file
+    // Variables to read each line into
     std::string name, className;
     int wave, kills, level;
     
-    // Read one score per line: name class wave kills level
+    // Read scores line by line: name class wave kills level
     while (file >> name >> className >> wave >> kills >> level) {
         scores.push_back(Score(name, className, wave, kills, level));
     }
     
     file.close();
-    sortScores();  // Sort after loading
+    
+    // Sort scores after loading to ensure order is correct
+    sortScores();
 }
 
-// Save scores to file
+// Save current scores vector to the file
 void Leaderboard::saveScores() {
     std::ofstream file(filename);  // Open file for writing
     
+    // Check if file opened successfully
     if (!file.is_open()) {
         std::cout << "Error: Could not save leaderboard!" << std::endl;
         return;
     }
     
-    // Write each score to file: name class wave kills level
+    // Write each score entry in the format: name class wave kills level
     for (const auto& score : scores) {
         file << score.playerName << " " 
              << score.className << " " 
@@ -86,18 +89,18 @@ void Leaderboard::saveScores() {
     std::cout << "Leaderboard saved!" << std::endl;
 }
 
-// Check if this wave score would make top 10
+// Check if a given wave value qualifies as a top score on leaderboard
 bool Leaderboard::isTopScore(int wave) const {
-    // If we have less than 10 scores, always accept
+    // If fewer than max scores, always qualifies
     if (scores.size() < MAX_SCORES) return true;
     
-    // Check if this wave is better than the worst score (last in list)
+    // Otherwise check if wave is better than lowest recorded wave (last element)
     return wave > scores.back().wave;
 }
 
-// Draw the leaderboard on screen
+// Draw the leaderboard on the SFML window using provided font
 void Leaderboard::draw(sf::RenderWindow& window, sf::Font& font) {
-    // Draw title "LEADERBOARD" at top
+    // Draw title "LEADERBOARD" centered at top
     sf::Text title;
     title.setFont(font);
     title.setString("LEADERBOARD");
@@ -106,10 +109,10 @@ void Leaderboard::draw(sf::RenderWindow& window, sf::Font& font) {
     title.setStyle(sf::Text::Bold);
     sf::FloatRect titleBounds = title.getLocalBounds();
     title.setOrigin(titleBounds.width / 2, titleBounds.height / 2);
-    title.setPosition(640, 80);  // Center at top
+    title.setPosition(640, 80);  // Centered horizontally at top
     window.draw(title);
     
-    // Column positions (X coordinates)
+    // Define X positions for each leaderboard column
     float rankX = 120;
     float nameX = 220;
     float classX = 400;
@@ -117,7 +120,7 @@ void Leaderboard::draw(sf::RenderWindow& window, sf::Font& font) {
     float killsX = 720;
     float levelX = 880;
     
-    // Draw column headers
+    // Prepare column headers with light gray color
     sf::Text rankHeader, nameHeader, classHeader, waveHeader, killsHeader, levelHeader;
     
     rankHeader.setFont(font);
@@ -156,6 +159,7 @@ void Leaderboard::draw(sf::RenderWindow& window, sf::Font& font) {
     levelHeader.setFillColor(sf::Color(200, 200, 200));
     levelHeader.setPosition(levelX, 150);
     
+    // Draw all the headers
     window.draw(rankHeader);
     window.draw(nameHeader);
     window.draw(classHeader);
@@ -163,22 +167,22 @@ void Leaderboard::draw(sf::RenderWindow& window, sf::Font& font) {
     window.draw(killsHeader);
     window.draw(levelHeader);
     
-    // Draw each score
-    float startY = 200;      // Y position of first score
-    float spacing = 45;      // Space between each score line
+    // Starting Y position and vertical spacing for each score row
+    float startY = 200;
+    float spacing = 45;
     
-    // Loop through top 10 scores
+    // Loop through top scores to display them
     for (size_t i = 0; i < scores.size() && i < MAX_SCORES; ++i) {
         float yPos = startY + i * spacing;
         
-        // Color for this rank
+        // Set text color based on rank: Gold, Silver, Bronze, or White
         sf::Color textColor;
-        if (i == 0) textColor = sf::Color(255, 215, 0);        // 1st = Gold
-        else if (i == 1) textColor = sf::Color(192, 192, 192); // 2nd = Silver
-        else if (i == 2) textColor = sf::Color(205, 127, 50);  // 3rd = Bronze
-        else textColor = sf::Color::White;                      // Rest = White
+        if (i == 0) textColor = sf::Color(255, 215, 0);        // 1st place = Gold
+        else if (i == 1) textColor = sf::Color(192, 192, 192); // 2nd place = Silver
+        else if (i == 2) textColor = sf::Color(205, 127, 50);  // 3rd place = Bronze
+        else textColor = sf::Color::White;                      // Others = White
         
-        // Rank
+        // Draw Rank number
         sf::Text rankText;
         rankText.setFont(font);
         rankText.setString(std::to_string(i + 1) + ".");
@@ -187,7 +191,7 @@ void Leaderboard::draw(sf::RenderWindow& window, sf::Font& font) {
         rankText.setPosition(rankX, yPos);
         window.draw(rankText);
         
-        // Name (truncate to 10 chars)
+        // Draw Player name, truncated to 10 characters if too long
         sf::Text nameText;
         nameText.setFont(font);
         std::string displayName = scores[i].playerName;
@@ -198,7 +202,7 @@ void Leaderboard::draw(sf::RenderWindow& window, sf::Font& font) {
         nameText.setPosition(nameX, yPos);
         window.draw(nameText);
         
-        // Class
+        // Draw Player class name
         sf::Text classText;
         classText.setFont(font);
         classText.setString(scores[i].className);
@@ -207,7 +211,7 @@ void Leaderboard::draw(sf::RenderWindow& window, sf::Font& font) {
         classText.setPosition(classX, yPos);
         window.draw(classText);
         
-        // Wave
+        // Draw Wave reached
         sf::Text waveText;
         waveText.setFont(font);
         waveText.setString(std::to_string(scores[i].wave));
@@ -216,7 +220,7 @@ void Leaderboard::draw(sf::RenderWindow& window, sf::Font& font) {
         waveText.setPosition(waveX, yPos);
         window.draw(waveText);
         
-        // Kills
+        // Draw Kills count
         sf::Text killsText;
         killsText.setFont(font);
         killsText.setString(std::to_string(scores[i].kills));
@@ -225,7 +229,7 @@ void Leaderboard::draw(sf::RenderWindow& window, sf::Font& font) {
         killsText.setPosition(killsX, yPos);
         window.draw(killsText);
         
-        // Level
+        // Draw Level reached
         sf::Text levelText;
         levelText.setFont(font);
         levelText.setString(std::to_string(scores[i].level));
@@ -235,7 +239,7 @@ void Leaderboard::draw(sf::RenderWindow& window, sf::Font& font) {
         window.draw(levelText);
     }
     
-    // Draw instructions at bottom
+    // Draw instructions at the bottom center of the screen
     sf::Text instructions;
     instructions.setFont(font);
     instructions.setString("Press ESC to return to menu");
@@ -243,6 +247,6 @@ void Leaderboard::draw(sf::RenderWindow& window, sf::Font& font) {
     instructions.setFillColor(sf::Color(150, 150, 150));
     sf::FloatRect instrBounds = instructions.getLocalBounds();
     instructions.setOrigin(instrBounds.width / 2, instrBounds.height / 2);
-    instructions.setPosition(640, 650);  // Center at bottom
+    instructions.setPosition(640, 650);  // Center horizontally near bottom
     window.draw(instructions);
 }

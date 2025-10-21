@@ -6,22 +6,23 @@
 #include "GoblinBrute.h"
 #include "GoblinLord.h"
 
+// Manages enemy waves: spawning and wave progression logic
 class WaveManager {
 public:
-    WaveManager(Environment* env);
+    explicit WaveManager(Environment* env);  // Explicit to prevent implicit conversions
 
-    void update(float dt);
-    int getCurrentWave() const;
-    bool isWaveActive() const;
+    void update(float dt);          // Updates wave timer and spawns new waves
+    int getCurrentWave() const;    // Returns current wave number
+    bool isWaveActive() const;     // Returns whether enemies are currently active
 
 private:
-    void startNextWave();
+    void startNextWave();          // Starts spawning the next wave of enemies
 
-    Environment* environment;
-    int currentWave;
-    float waveTimer;
-    bool waveActive;
-    int enemiesToSpawn;
+    Environment* environment;      // Pointer to the game environment
+    int currentWave;               // Current wave number (starting from 0)
+    float waveTimer;               // Timer counting down to next wave spawn
+    bool waveActive;               // Whether a wave is currently active (enemies present)
+    int enemiesToSpawn;            // Number of enemies to spawn in the current wave
 };
 
-#endif
+#endif // WAVEMANAGER_H

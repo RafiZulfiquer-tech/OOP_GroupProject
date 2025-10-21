@@ -3,10 +3,11 @@
 
 #include "Wizard.h"
 
+// Enhanced Wizard with meteor ability
 class Archmage : public Wizard {
 private:
-    int meteorCost;
-    float meteorRadius;
+    int meteorCost;       // Mana cost for meteor
+    float meteorRadius;   // Explosion radius
 public:
     Archmage(float x, float y);
     std::unique_ptr<Attack> createAttack(float angleToMouse) override;

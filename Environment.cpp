@@ -3,13 +3,16 @@
 #include <algorithm>
 #include <cmath>
 
-Environment::Environment(int width, int height) : width(width), height(height) {}
+Environment::Environment(int width, int height)
+    : width(width), height(height) {}
 
+// Add entity to environment
 void Environment::spawnEntity(Entity* entity) {
     if (!entity) throw std::invalid_argument("Null entity cannot be spawned");
     entities.push_back(entity);
 }
 
+// Remove entity if found
 void Environment::removeEntity(Entity* entity) {
     auto it = std::remove(entities.begin(), entities.end(), entity);
     if (it != entities.end()) {
@@ -19,23 +22,22 @@ void Environment::removeEntity(Entity* entity) {
     }
 }
 
+// Check circle collision between two entities
 bool Environment::checkCollision(Entity* a, Entity* b) const {
     if (!a || !b) return false;
-    
-    // Get positions using getPosition() which returns sf::Vector2f
+
     sf::Vector2f posA = a->getPosition();
     sf::Vector2f posB = b->getPosition();
-    
-    // Calculate distance
-    float dx = posA.x - posB.x;  // ← Use .x not getX()
-    float dy = posA.y - posB.y;  // ← Use .y not getY()
+
+    float dx = posA.x - posB.x;
+    float dy = posA.y - posB.y;
     float distSq = dx * dx + dy * dy;
-    
-    // Check if circles overlap
+
     float radSum = a->getRadius() + b->getRadius();
     return distSq <= radSum * radSum;
 }
 
+// Clamp position to environment bounds
 void Environment::clampPosition(int& x, int& y) const {
     if (x < 0) x = 0;
     if (y < 0) y = 0;
@@ -43,12 +45,15 @@ void Environment::clampPosition(int& x, int& y) const {
     if (y > height) y = height;
 }
 
+// Delete and clear all entities
 void Environment::clearEntities() {
     for (auto entity : entities) {
         delete entity;
     }
     entities.clear();
 }
+
+// Remove and delete dead entities
 void Environment::removeDeadEntities() {
     entities.erase(
         std::remove_if(entities.begin(), entities.end(),
@@ -63,6 +68,7 @@ void Environment::removeDeadEntities() {
     );
 }
 
+// Getters
 int Environment::getWidth() const { return width; }
 int Environment::getHeight() const { return height; }
 size_t Environment::getEntityCount() const { return entities.size(); }
