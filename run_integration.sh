@@ -13,7 +13,7 @@ echo ""
 echo "=== Combat Test ==="
 g++ -std=c++17 -Wno-unused-parameter -I. \
     tests/integration/combat_test.cpp \
-    Entity.cpp environment.cpp Player.cpp Warrior.cpp Wizard.cpp Rogue.cpp \
+    Entity.cpp Environment.cpp Player.cpp Warrior.cpp Wizard.cpp Rogue.cpp \
     Knight.cpp Assassin.cpp Archmage.cpp Enemy.cpp Goblin.cpp GoblinBrute.cpp \
     GoblinLord.cpp Controller.cpp \
     -lsfml-graphics -lsfml-window -lsfml-system \
@@ -30,7 +30,7 @@ echo ""
 echo "=== XP Test ==="
 g++ -std=c++17 -Wno-unused-parameter -I. \
     tests/integration/xp_test.cpp \
-    Entity.cpp environment.cpp Player.cpp Warrior.cpp Wizard.cpp Rogue.cpp \
+    Entity.cpp Environment.cpp Player.cpp Warrior.cpp Wizard.cpp Rogue.cpp \
     Knight.cpp Assassin.cpp Archmage.cpp Enemy.cpp Goblin.cpp GoblinBrute.cpp \
     GoblinLord.cpp Controller.cpp \
     -lsfml-graphics -lsfml-window -lsfml-system \
@@ -47,7 +47,7 @@ echo ""
 echo "=== Mana Test ==="
 g++ -std=c++17 -Wno-unused-parameter -I. \
     tests/integration/mana_test.cpp \
-    Entity.cpp environment.cpp Player.cpp Warrior.cpp Wizard.cpp Rogue.cpp \
+    Entity.cpp Environment.cpp Player.cpp Warrior.cpp Wizard.cpp Rogue.cpp \
     Knight.cpp Assassin.cpp Archmage.cpp Enemy.cpp Goblin.cpp GoblinBrute.cpp \
     GoblinLord.cpp Controller.cpp \
     -lsfml-graphics -lsfml-window -lsfml-system \
@@ -64,7 +64,7 @@ echo ""
 echo "=== Enemy Test ==="
 g++ -std=c++17 -Wno-unused-parameter -I. \
     tests/integration/enemy_test.cpp \
-    Entity.cpp environment.cpp Player.cpp Warrior.cpp Wizard.cpp Rogue.cpp \
+    Entity.cpp Environment.cpp Player.cpp Warrior.cpp Wizard.cpp Rogue.cpp \
     Knight.cpp Assassin.cpp Archmage.cpp Enemy.cpp Goblin.cpp GoblinBrute.cpp \
     GoblinLord.cpp Controller.cpp \
     -lsfml-graphics -lsfml-window -lsfml-system \
@@ -81,7 +81,7 @@ echo ""
 echo "=== Environment Test ==="
 g++ -std=c++17 -Wno-unused-parameter -I. \
     tests/integration/environment_test.cpp \
-    Entity.cpp environment.cpp Player.cpp Warrior.cpp Wizard.cpp Rogue.cpp \
+    Entity.cpp Environment.cpp Player.cpp Warrior.cpp Wizard.cpp Rogue.cpp \
     Knight.cpp Assassin.cpp Archmage.cpp Enemy.cpp Goblin.cpp GoblinBrute.cpp \
     GoblinLord.cpp Controller.cpp \
     -lsfml-graphics -lsfml-window -lsfml-system \

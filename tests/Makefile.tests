@@ -1,38 +1,39 @@
+# === Compiler and Flags ===
 CXX = g++
 CXXFLAGS = -std=c++17 -I.. -I. -g
 SFML_LIBS = -lsfml-graphics -lsfml-window -lsfml-system
 GTEST_LIBS = -lgtest -lgtest_main -pthread
 
-# Source files from main project
+# === Main Project Sources ===
 MAIN_SRCS = ../Entity.cpp ../Player.cpp ../Warrior.cpp ../Wizard.cpp ../Rogue.cpp \
             ../Archmage.cpp ../Knight.cpp ../Assassin.cpp ../Enemy.cpp ../Goblin.cpp \
             ../GoblinBrute.cpp ../GoblinLord.cpp ../Environment.cpp ../Controller.cpp \
             ../Menu.cpp ../WaveManager.cpp ../HUD.cpp
 
-# Test directories
+# === Test Source Directories ===
 INTEGRATION_DIR = integration
 UNIT_DIR = unit+exceptionHandling
 
-# Find all test files
-INTEGRATION_TESTS = $(wildcard $(INTEGRATION_DIR)/*.cpp)
-UNIT_TESTS = $(wildcard $(UNIT_DIR)/*.cpp)
-
-# Output directories
+# === Output Directories ===
 TEST_BUILD_DIR = test_build
 INTEGRATION_BUILD_DIR = $(TEST_BUILD_DIR)/integration
 UNIT_BUILD_DIR = $(TEST_BUILD_DIR)/unit
 
-# Create build directories
+# === Find All Test Files ===
+INTEGRATION_TESTS = $(wildcard $(INTEGRATION_DIR)/*.cpp)
+UNIT_TESTS = $(wildcard $(UNIT_DIR)/*.cpp)
+
+# === Create Build Directories ===
 $(shell mkdir -p $(INTEGRATION_BUILD_DIR) $(UNIT_BUILD_DIR))
 
-# Test targets
+# === Build Targets ===
 INTEGRATION_TARGETS = $(patsubst $(INTEGRATION_DIR)/%.cpp,$(INTEGRATION_BUILD_DIR)/%,$(INTEGRATION_TESTS))
 UNIT_TARGETS = $(patsubst $(UNIT_DIR)/%.cpp,$(UNIT_BUILD_DIR)/%,$(UNIT_TESTS))
 
-# Default target
+# === Default Target ===
 all: integration unit
 
-# Integration tests
+# === Integration Tests ===
 integration: $(INTEGRATION_TARGETS)
 	@echo "=== Running Integration Tests ==="
 	@for test in $(INTEGRATION_TARGETS); do \
@@ -41,7 +42,7 @@ integration: $(INTEGRATION_TARGETS)
 		echo ""; \
 	done
 
-# Unit tests
+# === Unit Tests ===
 unit: $(UNIT_TARGETS)
 	@echo "=== Running Unit Tests ==="
 	@for test in $(UNIT_TARGETS); do \
@@ -50,43 +51,42 @@ unit: $(UNIT_TARGETS)
 		echo ""; \
 	done
 
-# Build integration tests - show full command for debugging
+# === Build Individual Integration Test ===
 $(INTEGRATION_BUILD_DIR)/%: $(INTEGRATION_DIR)/%.cpp $(MAIN_SRCS)
 	@echo "Building $<..."
 	$(CXX) $(CXXFLAGS) $< $(MAIN_SRCS) $(SFML_LIBS) $(GTEST_LIBS) -o $@
 
-# Build unit tests - show full command for debugging
+# === Build Individual Unit Test ===
 $(UNIT_BUILD_DIR)/%: $(UNIT_DIR)/%.cpp $(MAIN_SRCS)
 	@echo "Building $<..."
 	$(CXX) $(CXXFLAGS) $< $(MAIN_SRCS) $(SFML_LIBS) $(GTEST_LIBS) -o $@
 
-# Run specific integration test
+# === Run Specific Integration Test ===
 run-integration-%: $(INTEGRATION_BUILD_DIR)/%
 	@echo "Running $<..."
 	@$<
 
-# Run specific unit test
+# === Run Specific Unit Test ===
 run-unit-%: $(UNIT_BUILD_DIR)/%
 	@echo "Running $<..."
 	@$<
 
-# Clean test builds
+# === Clean Build Outputs ===
 clean:
 	rm -rf $(TEST_BUILD_DIR)
 
-# List available tests
+# === List Available Tests ===
 list-tests:
 	@echo "=== Integration Tests ==="
 	@for test in $(INTEGRATION_TESTS); do \
 		basename=$$(basename $$test .cpp); \
-		echo "  integration-$$basename"; \
+		echo "  run-integration-$$basename"; \
 	done
 	@echo ""
 	@echo "=== Unit Tests ==="
 	@for test in $(UNIT_TESTS); do \
 		basename=$$(basename $$test .cpp); \
-		echo "  unit-$$basename"; \
+		echo "  run-unit-$$basename"; \
 	done
 
 .PHONY: all integration unit clean list-tests
-EOF
