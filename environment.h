@@ -22,7 +22,7 @@ public:
     void removeDeadEntities();
 
 private:
-    int width, height;
+    int width, height;  
     std::vector<Entity*> entities;
 };
 
