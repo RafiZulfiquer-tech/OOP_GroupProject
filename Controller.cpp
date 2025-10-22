@@ -1,12 +1,13 @@
 #include "Controller.h"
 #include <cmath>    
 
+// initialise attack pressed to alse
 Controller::Controller() : attackPressed(false) {}
 
-// Update mouse position relative to the window
+// Update mouse position relative to the window in pixel coordinates
 void Controller::update(sf::RenderWindow& window) {
     sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
-    mousePosition = window.mapPixelToCoords(pixelPos);
+    mousePosition = window.mapPixelToCoords(pixelPos); //coordinates in game
 }
 
 // Handle mouse button press for attacks
@@ -20,7 +21,7 @@ void Controller::handleEvent(const sf::Event& event) {
 
 // Get normalized movement vector from WASD keys
 sf::Vector2f Controller::getMoveVector() const {
-    sf::Vector2f moveVec(0.f, 0.f);
+    sf::Vector2f moveVec(0.f, 0.f); //start at 0,0 not moving
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) moveVec.y -= 1.f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) moveVec.y += 1.f;
